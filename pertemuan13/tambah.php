@@ -33,7 +33,7 @@ if(isset($_POST["submit"])) {
 <body>
     <h1>Tambah data Pemain Bola</h1>
 
-    <form action="" method="post">
+    <form action="" method="post" enctype="multipart/form-data">
         <ul>
             <li>
                 <label for="nama">Nama : </label>
@@ -57,7 +57,7 @@ if(isset($_POST["submit"])) {
             </li>
             <li>
                 <label for="gambar">Gambar : </label>
-                <input type="text" name="gambar" id="gambar" require>
+                <input type="file" name="gambar" id="gambar" require>
             </li>
             <li>
                 <button type="submit" name="submit">Tambah Data</button>

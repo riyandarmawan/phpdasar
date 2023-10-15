@@ -20,8 +20,12 @@ function tambah($data) {
     $tinggi = htmlspecialchars($data["tinggi"]);
     $kebangsaan = htmlspecialchars($data["kebangsaan"]);
     $umur = htmlspecialchars($data["umur"]);
-    $gambar = htmlspecialchars($data["gambar"]);
 
+    // upload gambar
+    $gambar = upload();
+    if(!$gambar) {
+        return false;
+    }
     
     $query = "INSERT INTO pemain_bola
                 VALUES
@@ -32,9 +36,60 @@ function tambah($data) {
     return mysqli_affected_rows($conn);
 }
 
+function upload() {
+    $namaFile = $_FILES['gambar']['name'];
+    $ukuranFile = $_FILES['gambar']['size'];
+    $error = $_FILES['gambar']['error'];
+    $tmpName = $_FILES['gambar']['tmp_name'];
+
+    // cek apakah tdak ada gambar yang di upload
+    if($error === 4) {
+        echo "<script>
+                alert('pilih gambar terlebih dahulu!');
+            </script>";
+        return false;
+    }
+
+    // cek apakah yang diupload adalah gambar
+    $extensiGambarValid = ['jpg', 'jpeg', 'png'];
+    $extensiGambar = explode('.', $namaFile);
+    $extensiGambar = strtolower(end($extensiGambar));
+    if(!in_array($extensiGambar, $extensiGambarValid)) {
+        echo "<script>
+                alert('yang anda upload bukan gambar!');
+            </script>";
+    }
+
+    // cek jika tapi ukurannya terlalu besar
+    if($ukuranFile > 1000000) {
+        echo "<script>
+                alert('ukuran anda terlalu besar!');
+            </script>";
+    }
+
+    // lolos pengecekan gambar siap diupload
+    // generate nama gambar baru
+    $namaFileBaru = uniqid();
+    $namaFileBaru .= '.';
+    $namaFileBaru .= $extensiGambar;
+
+    move_uploaded_file($tmpName, 'img/' . $namaFileBaru);
+
+    return $namaFileBaru;
+}
+
 function hapus($id) {
     global $conn;
     mysqli_query($conn, "DELETE FROM pemain_bola WHERE id = $id");
+    return mysqli_affected_rows($conn);
+}
+
+function hapusGambar($query) {
+    global $conn;
+    $file = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM siswa WHERE id = '$query'"));
+    unlink('img/' . $file["gambar"]);
+    $hapus = "DELETE FROM pemain_bola WHERE id='$query'";
+    mysqli_query($conn, $hapus);
     return mysqli_affected_rows($conn);
 }
 
@@ -47,7 +102,14 @@ function ubah($data) {
     $tinggi = htmlspecialchars($data["tinggi"]);
     $kebangsaan = htmlspecialchars($data["kebangsaan"]);
     $umur = htmlspecialchars($data["umur"]);
-    $gambar = htmlspecialchars($data["gambar"]);
+    $gambarLama = htmlspecialchars($data["gambarLama"]);
+
+    // cek apakah user pilih gambar baru atau tidak 
+    if ($_FILES['gambar']['error'] === 4) {
+        $gambar = $gambarLama;
+    } else {
+        $gambar = upload();
+    }
     
     $query = "UPDATE pemain_bola SET
                 nama = '$nama',

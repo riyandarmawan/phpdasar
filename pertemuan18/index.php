@@ -14,8 +14,9 @@ $awalData = ($jumlahDataPerHalaman * $halamanAktif) - $jumlahDataPerHalaman;
 
 // tombol cari ditekan
 if(isset($_POST["cari"])) {
-    $pemainBola = cari($_POST["keyword"]);
-    $jumlahData = count(hitungCari($_POST["keyword"]));
+    $_SESSION["keyword"] = $_POST["keyword"];
+    $pemainBola = cari($_SESSION["keyword"]);
+    $jumlahData = count(hitungCari($_SESSION["keyword"]));
 } else {
     // pagination
     // konfigurasi
@@ -24,9 +25,17 @@ if(isset($_POST["cari"])) {
     // halaman = 1, awalData = 0
     // halaman = 2, awalData = 2
     $pemainBola = query("SELECT * FROM pemain_bola LIMIT $awalData, $jumlahDataPerHalaman");
+    if (isset($_SESSION["keyword"])) {
+        $jumlahData = count(hitungCari($_SESSION["keyword"]));
+        $pemainBola = cari($_SESSION["keyword"]);
+    }
 }
 
 $jumlahHalaman = ceil($jumlahData / $jumlahDataPerHalaman);
+
+if ($halamanAktif > $jumlahHalaman) {
+    header("Location: ?halaman=$jumlahHalaman");
+}
 ?>
 
 <!DOCTYPE html>
@@ -49,6 +58,9 @@ $jumlahHalaman = ceil($jumlahData / $jumlahDataPerHalaman);
         <button type="submit" name="cari">Cari</button>
     </form>
     <br>
+    <a href="hapusKeyword.php">Hapus keyword pencarian</a>
+    <br>
+    <br>
 
     <!-- navigasi -->
 
@@ -70,6 +82,7 @@ $jumlahHalaman = ceil($jumlahData / $jumlahDataPerHalaman);
             <a href="?halaman=<?= $jumlahHalaman; ?>">akhir</a>
     <?php endif; ?>
     
+    <br>
     <br>
 
     <table border="1" cellpading="10" cellspacing="0">

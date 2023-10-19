@@ -80,7 +80,12 @@ function upload() {
 
 function hapus($id) {
     global $conn;
+
+    $query = mysqli_query($conn, "SELECT * FROM pemain_bola WHERE id = $id");
+    $namaFile = mysqli_fetch_assoc($query)["gambar"];
+    unlink('img/' . $namaFile);
     mysqli_query($conn, "DELETE FROM pemain_bola WHERE id = $id");
+
     return mysqli_affected_rows($conn);
 }
 

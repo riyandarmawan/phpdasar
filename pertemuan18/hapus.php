@@ -20,7 +20,7 @@ if(hapus($id) > 0) {
 } else {
     echo "
          <script>
-             alert('data hapus ditambahkan!');
+             alert('data tidak berhasil di hapus!');
              document.location.href = 'index.php';
          </script>
      ";
